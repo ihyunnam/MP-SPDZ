@@ -37,7 +37,6 @@ void Machine<sint, sgf2n>::init_binary_domains(int security_parameter, int lg2)
               << endl;
           cerr << "Increase the latter (-lg2) or decrease the former (-S)."
               << endl;
-          exit(1);
         }
     }
 
