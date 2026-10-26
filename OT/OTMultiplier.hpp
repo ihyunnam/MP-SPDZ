@@ -596,10 +596,18 @@ void TinierMultiplier<T>::after_correlation()
         auth_ot_ext.transpose();
         this->macs[j].clear();
         for (size_t i = 0; i < this->generator.valueBits[j].size(); i++)
+#ifdef LONG_BIT_MAC_KEY
+            // 128-bit MAC key: keep the whole correlation
+            this->macs[j].push_back(
+                    int128(
+                            auth_ot_ext.receiverOutputMatrix[i]
+                                    ^ auth_ot_ext.senderOutputMatrices[0][i]));
+#else
             this->macs[j].push_back(
                     int128(
                             auth_ot_ext.receiverOutputMatrix[i]
                                     ^ auth_ot_ext.senderOutputMatrices[0][i]).get_lower());
+#endif
     }
     this->outbox.push(job);
 }
@@ -769,10 +777,18 @@ void TinierMultiplier<U>::multiplyForInputs(MultJob job)
     input_macs.resize(job.n_inputs);
     if (mine)
         for (int j = 0; j < job.n_inputs; j++)
+#ifdef LONG_BIT_MAC_KEY
+            input_macs[j] = int128(auth_ot_ext.receiverOutputMatrix[j]);
+#else
             input_macs[j] = int128(auth_ot_ext.receiverOutputMatrix[j]).get_lower();
+#endif
     else
         for (int j = 0; j < job.n_inputs; j++)
+#ifdef LONG_BIT_MAC_KEY
+            input_macs[j] = int128(auth_ot_ext.senderOutputMatrices[0][j]);
+#else
             input_macs[j] = int128(auth_ot_ext.senderOutputMatrices[0][j]).get_lower();
+#endif
     this->outbox.push(job);
 }
 
