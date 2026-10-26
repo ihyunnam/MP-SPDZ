@@ -71,11 +71,14 @@ int BaseMachine::triple_bucket_size(DataFieldType type)
 int BaseMachine::bucket_size(size_t usage)
 {
   int res = OnlineOptions::singleton.bucket_size;
+  // security parameter restricts the admissible bucket sizes
+  res = max(res, ShuffleSacrifice::min_bucket_size());
+  res = min(res, ShuffleSacrifice::max_bucket_size());
   int min = res;
 
   if (usage)
     {
-      res = 5;
+      res = ShuffleSacrifice::max_bucket_size();
       for (int B = res; B >= min; B--)
         if (ShuffleSacrifice(B).minimum_n_outputs() > usage * 1.1)
           break;

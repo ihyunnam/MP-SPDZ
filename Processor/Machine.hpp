@@ -43,7 +43,19 @@ void Machine<sint, sgf2n>::init_binary_domains(int security_parameter, int lg2)
 
   if (not is_same<typename sint::bit_type::mac_key_type, GC::NoValue>())
     {
-      sint::bit_type::mac_key_type::init_minimum(security_parameter);
+      // The binary MAC key type has a fixed maximum degree; above it, keep the
+      // statistical parameter for everything else and cap the MAC degree.
+      int sec = security_parameter;
+      int max_deg = sint::bit_type::mac_key_type::MAX_N_BITS;
+      if (sec > max_deg)
+        {
+          cerr << "Binary MAC key supports at most " << max_deg
+              << "-bit MACs; using " << max_deg << "-bit binary MACs while "
+              << "the statistical security parameter " << sec
+              << " applies to the rest (edaBit and triple checks)" << endl;
+          sec = max_deg;
+        }
+      sint::bit_type::mac_key_type::init_minimum(sec);
     }
   else
     {

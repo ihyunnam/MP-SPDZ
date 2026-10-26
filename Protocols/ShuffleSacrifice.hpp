@@ -24,9 +24,9 @@ inline
 ShuffleSacrifice::ShuffleSacrifice(int B, int C) :
         B(B), C(C)
 {
-    if (OnlineOptions::singleton.security_parameter > 40)
+    if (OnlineOptions::singleton.security_parameter > 80)
         throw runtime_error("shuffle sacrifice not implemented for more than "
-                "40-bit security");
+                "80-bit security");
 }
 
 template<class U>

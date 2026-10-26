@@ -129,7 +129,7 @@ template<class T>
 int TripleShuffleSacrifice<T>::batch_size()
 {
     // use this to avoid bucket size being too low
-    int trick_max = 10 * ShuffleSacrifice(3).minimum_n_outputs()
+    int trick_max = 10 * ShuffleSacrifice(ShuffleSacrifice::min_bucket_size()).minimum_n_outputs()
             * T::default_length;
     int res = BaseMachine::batch_size<T>(DATA_TRIPLE, 0, trick_max);
     if (res == trick_max)

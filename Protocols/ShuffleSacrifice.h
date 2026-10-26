@@ -11,6 +11,7 @@
 using namespace std;
 
 #include "Tools/FixedVector.h"
+#include "Processor/OnlineOptions.h"
 #include "edabit.h"
 #include "dabit.h"
 
@@ -40,8 +41,29 @@ public:
     {
         return minimum_n_inputs(B * max(n_outputs, minimum_n_outputs()));
     }
+    // Cut-and-choose parameters (bucket size B, minimum batch) from
+    // Escudero et al., "Improved Primitives for MPC over Mixed
+    // Arithmetic-Binary Circuits" (CRYPTO 2020):
+    //   40-bit security: B = 3 needs >= 2^20 outputs, B = 4 >= 10368, B = 5 >= 1024
+    //   80-bit security: B = 5 needs >= 2^20 outputs (Table 1 of the paper)
+    static int max_bucket_size()
+    {
+        return OnlineOptions::singleton.security_parameter > 40 ? 5 : 5;
+    }
+    static int min_bucket_size()
+    {
+        return OnlineOptions::singleton.security_parameter > 40 ? 5 : 3;
+    }
     int minimum_n_outputs()
     {
+        if (OnlineOptions::singleton.security_parameter > 40)
+        {
+            if (B == 5)
+                return 1 << 20;
+            else
+                throw runtime_error("not supported for 80-bit security: B = "
+                        + to_string(B) + " (use B = 5)");
+        }
         if (B == 3)
             return 1 << 20;
         else if (B == 4)
